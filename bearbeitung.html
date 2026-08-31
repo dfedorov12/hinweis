@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fallbearbeitung – DIHAG Hinweisgebersystem</title>
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://alcdn.msauth.net/browser/2.38.1/js/msal-browser.min.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="kopf">
+    <a class="marke" href="bearbeitung.html">
+      <img src="assets/dihag-logo.png" alt="DIHAG Foundry Group">
+      <span class="marke-text">
+        <strong>Meldestelle</strong>
+        <span>Fallbearbeitung</span>
+      </span>
+    </a>
+    <nav class="kopf-nav" id="hauptnav" hidden>
+      <a href="#" data-blick="uebersicht" class="aktiv">Fallübersicht</a>
+      <a href="#" data-blick="verwaltung" id="navVerwaltung" hidden>Bearbeiter</a>
+      <a href="#" data-blick="schluessel">Mein Schlüssel</a>
+      <span class="mini" id="werBinIch" style="margin-left:10px"></span>
+      <button type="button" class="knopf knopf-still knopf-klein" id="btnAbmelden">Abmelden</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <div id="laden" class="laden">
+    <div class="kreisel"></div>
+    <p id="ladetext">Anmeldung läuft …</p>
+  </div>
+
+  <div id="keinZugriff" class="karte" hidden>
+    <h2>Kein Zugriff</h2>
+    <p id="keinZugriffText"></p>
+    <p class="leise">Der Kreis der Personen, die Hinweise einsehen dürfen, ist nach
+       § 8 HinSchG bewusst eng. Die Aufnahme erfolgt über den Chief Compliance Officer.</p>
+    <button type="button" class="knopf knopf-still" id="btnAbmelden2">Abmelden</button>
+  </div>
+
+  <!-- ═════════════ Schlüssel einrichten / entsperren ═════════════ -->
+  <section id="blick-schluessel" class="blick" hidden>
+
+    <h1>Mein Schlüssel</h1>
+
+    <!-- Erstes Mal: Paar anlegen -->
+    <div class="karte" id="kastenAnlegen" hidden>
+      <h2>Schlüsselpaar anlegen</h2>
+      <p>Sie haben noch keinen Schlüssel. Ohne Schlüssel können Sie zwar sehen,
+         dass es Fälle gibt, aber keinen einzigen öffnen – und neue Meldungen
+         werden nicht für Sie verschlüsselt.</p>
+
+      <div class="leiste leiste-gelb">
+        <p><strong>Die Passphrase kann nicht zurückgesetzt werden.</strong>
+           Sie wird nirgends gespeichert, auch nicht in verschlüsselter Form. Wählen Sie
+           einen ganzen Satz, den Sie sicher behalten – nicht ein Passwort nach
+           Schema F.</p>
+        <p style="margin-bottom:0">Nach dem Anlegen erhalten Sie einmalig einen
+           <strong>Notfallschlüssel</strong>. Drucken Sie ihn aus und legen Sie ihn in den
+           Tresor. Er ist der einzige Weg zurück, wenn die Passphrase verloren geht.</p>
+      </div>
+
+      <div class="feld">
+        <label for="ppNeu">Passphrase (mindestens 12 Zeichen)</label>
+        <input type="password" id="ppNeu" autocomplete="new-password">
+      </div>
+      <div class="feld">
+        <label for="ppNeu2">Passphrase wiederholen</label>
+        <input type="password" id="ppNeu2" autocomplete="new-password">
+      </div>
+      <p class="fehler-text" id="anlegenFehler" hidden></p>
+      <button type="button" class="knopf knopf-haupt" id="btnPaarAnlegen">
+        Schlüsselpaar anlegen</button>
+    </div>
+
+    <!-- Einmalige Anzeige des Notfallschlüssels -->
+    <div id="kastenNotfall" hidden>
+      <div class="karte">
+        <h2>Notfallschlüssel – wird nur dieses eine Mal angezeigt</h2>
+        <div class="code-kasten">
+          <div class="beschriftung">Notfallschlüssel</div>
+          <div class="code-wert" id="notfallCode"></div>
+        </div>
+        <p><strong>Jetzt ausdrucken und in den Tresor legen.</strong> Wir können ihn nicht
+           noch einmal anzeigen und nicht neu erzeugen. Geht sowohl die Passphrase als
+           auch dieser Zettel verloren, kann nur noch ein anderer Compliance Officer
+           Ihre Fälle für Sie freigeben.</p>
+        <p class="mini">Fingerabdruck Ihres öffentlichen Schlüssels:
+           <b id="fingerabdruckNeu"></b> – damit lässt sich später prüfen, dass in der
+           Liste wirklich Ihr Schlüssel steht und kein untergeschobener.</p>
+        <div class="knopf-reihe nicht-drucken">
+          <button type="button" class="knopf knopf-haupt" id="btnNotfallDrucken">Drucken</button>
+          <button type="button" class="knopf knopf-still" id="btnNotfallFertig">
+            Ich habe ihn sicher verwahrt</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jede Sitzung: entsperren -->
+    <div class="karte" id="kastenEntsperren" hidden>
+      <h2>Schlüssel entsperren</h2>
+      <p class="leise">Ihr privater Schlüssel liegt verschlüsselt in SharePoint. Er wird
+         nur für diese Sitzung im Arbeitsspeicher geöffnet – beim Neuladen der Seite
+         müssen Sie ihn erneut entsperren.</p>
+      <div class="feld">
+        <label for="ppEin">Passphrase</label>
+        <input type="password" id="ppEin" autocomplete="current-password">
+      </div>
+      <label class="haken">
+        <input type="checkbox" id="mitNotfall">
+        <span>Ich benutze den Notfallschlüssel aus dem Tresor</span>
+      </label>
+      <p class="fehler-text" id="entsperrFehler" hidden></p>
+      <button type="button" class="knopf knopf-haupt" id="btnEntsperren">Entsperren</button>
+    </div>
+
+    <!-- Entsperrt -->
+    <div class="karte" id="kastenSchluesselOk" hidden>
+      <h2>Schlüssel ist entsperrt</h2>
+      <dl class="fall-zeile" style="display:block">
+        <div style="display:flex;gap:8px"><dt>Konto</dt><dd id="skKonto"></dd></div>
+        <div style="display:flex;gap:8px"><dt>Rolle</dt><dd id="skRolle"></dd></div>
+        <div style="display:flex;gap:8px"><dt>Zuständig für</dt><dd id="skGesellschaften"></dd></div>
+        <div style="display:flex;gap:8px"><dt>Fingerabdruck</dt><dd id="skFinger"></dd></div>
+      </dl>
+      <h3>Passphrase ändern</h3>
+      <div class="feld"><label for="ppAlt">Bisherige Passphrase</label>
+        <input type="password" id="ppAlt" autocomplete="current-password"></div>
+      <div class="feld"><label for="ppWechsel">Neue Passphrase</label>
+        <input type="password" id="ppWechsel" autocomplete="new-password"></div>
+      <p class="fehler-text" id="wechselFehler" hidden></p>
+      <p class="mini">Der Notfallschlüssel im Tresor bleibt gültig – er wird bewusst
+         nicht mitgetauscht, damit der Zettel dort nicht still veraltet.</p>
+      <button type="button" class="knopf knopf-zweit" id="btnPpWechseln">Passphrase ändern</button>
+    </div>
+  </section>
+
+  <!-- ═════════════ Fallübersicht ═════════════ -->
+  <section id="blick-uebersicht" class="blick" hidden>
+    <h1>Fallübersicht</h1>
+    <p class="untertitel" id="uebersichtHinweis"></p>
+
+    <div class="leiste leiste-gelb" id="gesperrtHinweis" hidden>
+      Ihr Schlüssel ist nicht entsperrt. Sie sehen deshalb nur, <em>dass</em> es Fälle
+      gibt – nicht ihren Inhalt.
+      <a href="#" data-blick="schluessel">Jetzt entsperren</a>
+    </div>
+
+    <div class="spalten">
+      <div>
+        <div id="fallliste"></div>
+      </div>
+
+      <aside>
+        <div class="karte eng filter">
+          <h3>Sortierung</h3>
+          <label class="haken"><input type="checkbox" id="sortAuf">
+            <span>Datum aufsteigend</span></label>
+
+          <h3>Filter</h3>
+          <fieldset>
+            <legend>Status</legend>
+            <div id="filterStatus"></div>
+          </fieldset>
+          <fieldset>
+            <legend>Betroffene Gesellschaft</legend>
+            <div id="filterGesellschaft"></div>
+          </fieldset>
+          <fieldset>
+            <legend>Zeitraum</legend>
+            <label for="vonDatum" class="mini">Von</label>
+            <input type="date" id="vonDatum">
+            <label for="bisDatum" class="mini" style="margin-top:6px">Bis</label>
+            <input type="date" id="bisDatum">
+          </fieldset>
+          <fieldset>
+            <legend>Frist</legend>
+            <label class="haken"><input type="checkbox" id="nurFristig">
+              <span>nur fristkritische Fälle</span></label>
+          </fieldset>
+          <button type="button" class="knopf knopf-haupt knopf-klein" id="btnFilter">
+            Anwenden</button>
+          <button type="button" class="knopf knopf-still knopf-klein" id="btnFilterWeg">
+            Zurücksetzen</button>
+        </div>
+
+        <div class="karte eng">
+          <h3>Statistik</h3>
+          <p class="mini">Export der aktuell gefilterten Fälle als CSV. Enthält nur
+             Felder, bei denen eine statistische Auswertung begründet ist – keine
+             Freitexte, keine Nachrichten.</p>
+          <button type="button" class="knopf knopf-zweit knopf-klein" id="btnStatistik">
+            Statistik exportieren</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ═════════════ Falldetail ═════════════ -->
+  <section id="blick-fall" class="blick" hidden>
+    <p class="mini"><a href="#" data-blick="uebersicht">← Zurück zur Fallübersicht</a></p>
+
+    <div class="fall-kopf" style="margin-bottom:8px">
+      <h1 id="dFallNr" style="margin:0"></h1>
+      <span class="merkmal" id="dStatus"></span>
+      <span class="merkmal m-still" id="dFrist" hidden></span>
+      <span style="margin-left:auto" class="knopf-reihe nicht-drucken">
+        <button type="button" class="knopf knopf-zweit knopf-klein" id="btnWord">Word</button>
+        <button type="button" class="knopf knopf-zweit knopf-klein" id="btnPdf">PDF</button>
+      </span>
+    </div>
+
+    <div class="reiter nicht-drucken">
+      <button type="button" data-blatt="falldaten" class="aktiv">Falldaten</button>
+      <button type="button" data-blatt="nachrichten">Nachrichten <span id="nachrichtenZahl"></span></button>
+      <button type="button" data-blatt="fristen">Fristen</button>
+      <button type="button" data-blatt="dokumentation">Dokumentation</button>
+      <button type="button" data-blatt="abschluss">Fallabschluss</button>
+    </div>
+
+    <!-- Falldaten -->
+    <div class="blatt aktiv" data-blatt="falldaten">
+      <div class="karte">
+        <h2>Falldaten</h2>
+        <div id="dInhalt"></div>
+      </div>
+
+      <div class="karte">
+        <h2>Anhänge</h2>
+        <div id="dAnhaenge"></div>
+      </div>
+
+      <div class="karte nicht-drucken">
+        <h2>Fall-Kategorien</h2>
+        <p class="mini">Diese Angaben stehen unverschlüsselt in der Liste. Sie sind die
+           Grundlage der Statistik und dürfen deshalb nichts über den Hinweisgeber
+           verraten.</p>
+        <div class="feld"><label for="kThema">Thema</label><select id="kThema"></select></div>
+        <div class="feld"><label for="kBereich">Betroffener Bereich</label>
+          <select id="kBereich"></select></div>
+        <div class="feld"><label for="kBedeutung">Bedeutung</label>
+          <select id="kBedeutung"></select></div>
+        <div class="feld"><label for="kBearbeiter">Fallbearbeiter</label>
+          <select id="kBearbeiter"></select>
+          <p class="mini">Nur Officer, für die der Fall entschlüsselbar ist, stehen zur
+             Auswahl. Wer noch keinen Schlüssel für diesen Fall hat, wird beim Zuweisen
+             automatisch freigeschaltet – das wird in der Dokumentation festgehalten.</p>
+        </div>
+        <button type="button" class="knopf knopf-haupt" id="btnKategorien">Speichern</button>
+      </div>
+    </div>
+
+    <!-- Nachrichten -->
+    <div class="blatt" data-blatt="nachrichten">
+      <div class="karte">
+        <h2>Anonymer Dialog mit dem Hinweisgeber</h2>
+        <p class="mini" id="dialogHinweis"></p>
+        <div class="verlauf" id="dVerlauf"></div>
+        <div id="dAntwortbereich">
+          <div class="feld" style="margin-top:16px">
+            <label for="dAntwort">Nachricht an den Hinweisgeber</label>
+            <textarea id="dAntwort" rows="5" maxlength="10000"
+              placeholder="Die Nachricht wird verschlüsselt und erscheint im anonymen Postfach."></textarea>
+          </div>
+          <p class="fehler-text" id="dSendeFehler" hidden></p>
+          <button type="button" class="knopf knopf-haupt" id="btnDSenden">
+            Verschlüsselt senden</button>
+        </div>
+        <div class="leiste leiste-gelb" id="dKeineRueckfragen" hidden>
+          Der Hinweisgeber hat keine Rückfragen zugelassen. Sie können ihm nichts
+          mitteilen – auch keine Rückmeldung nach § 17 Abs. 1 Nr. 6 HinSchG. Das ist
+          zu dokumentieren.
+        </div>
+      </div>
+    </div>
+
+    <!-- Fristen -->
+    <div class="blatt" data-blatt="fristen">
+      <div class="karte">
+        <h2>Gesetzliche Fristen</h2>
+        <div class="tabellen-rahmen">
+          <table class="daten" id="fristenTabelle"></table>
+        </div>
+      </div>
+      <div class="karte nicht-drucken">
+        <h2>Eigene Wiedervorlage</h2>
+        <p class="mini">Zusätzlich zu den gesetzlichen Fristen. Der tägliche Cron-Lauf
+           erinnert per E-Mail – ohne Fallinhalt.</p>
+        <div class="feld"><label for="wvDatum">Wiedervorlage am</label>
+          <input type="date" id="wvDatum"></div>
+        <div class="feld"><label for="wvGrund">Notiz (unverschlüsselt, keine Inhalte!)</label>
+          <input type="text" id="wvGrund" maxlength="255"></div>
+        <button type="button" class="knopf knopf-zweit" id="btnWv">Wiedervorlage setzen</button>
+      </div>
+    </div>
+
+    <!-- Dokumentation -->
+    <div class="blatt" data-blatt="dokumentation">
+      <div class="karte">
+        <h2>Dokumentation (§ 11 HinSchG)</h2>
+        <p class="mini">Vollständige Vorgangshistorie. Einträge lassen sich nicht
+           bearbeiten und nicht löschen.</p>
+        <div class="tabellen-rahmen">
+          <table class="daten" id="dokuTabelle"></table>
+        </div>
+        <h3>Vermerk hinzufügen</h3>
+        <div class="feld">
+          <label for="vermerk">Vermerk</label>
+          <textarea id="vermerk" rows="3" maxlength="4000"></textarea>
+          <p class="mini">Unverschlüsselt. Schreiben Sie hier keine Inhalte der Meldung
+             und nichts, was auf den Hinweisgeber schließen lässt – solche Notizen
+             gehören in eine Nachricht oder in die Fallakte.</p>
+        </div>
+        <button type="button" class="knopf knopf-zweit" id="btnVermerk">Vermerk speichern</button>
+      </div>
+    </div>
+
+    <!-- Fallabschluss -->
+    <div class="blatt" data-blatt="abschluss">
+      <div class="karte">
+        <h2>Fallabschluss</h2>
+        <div id="abschlussVorhanden" hidden></div>
+        <div id="abschlussFormular">
+          <div class="feld"><label for="aErgebnis">Ergebnis</label>
+            <select id="aErgebnis"></select></div>
+          <div class="feld"><label for="aMassnahmen">Ergriffene Folgemaßnahmen (§ 18 HinSchG)</label>
+            <select id="aMassnahmen"></select></div>
+          <div class="feld">
+            <label for="aRueckmeldung">Rückmeldung an den Hinweisgeber
+              (§ 17 Abs. 1 Nr. 6 HinSchG)</label>
+            <textarea id="aRueckmeldung" rows="6" maxlength="10000"></textarea>
+            <p class="mini">Wird verschlüsselt in das anonyme Postfach gestellt. Mitzuteilen
+               sind geplante und bereits ergriffene Folgemaßnahmen samt Gründen – nicht
+               aber Angaben, die Persönlichkeitsrechte Dritter oder die Untersuchung
+               beeinträchtigen würden.</p>
+          </div>
+          <p class="fehler-text" id="abschlussFehler" hidden></p>
+          <div class="knopf-reihe">
+            <button type="button" class="knopf knopf-haupt" id="btnAbschluss">
+              Fall abschließen</button>
+            <button type="button" class="knopf knopf-gefahr" id="btnAbweisen">
+              Nicht weiterverfolgen</button>
+          </div>
+          <p class="mini" style="margin-top:10px">Mit dem Abschluss beginnt die
+             Aufbewahrungsfrist. Drei Jahre danach löscht der tägliche Cron-Lauf
+             Inhalte, Nachrichten und Anhänge (§ 11 Abs. 5 HinSchG); die anonyme
+             Statistikzeile bleibt.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ Bearbeiterverwaltung ═════════════ -->
+  <section id="blick-verwaltung" class="blick" hidden>
+    <h1>Bearbeiter</h1>
+    <div class="leiste leiste-blau">
+      Wer hier steht, darf die Fallübersicht öffnen. <strong>Lesen</strong> kann er einen
+      Fall aber erst, wenn er einen eigenen Schlüssel angelegt hat und der Fall für ihn
+      freigegeben wurde. Neue Meldungen werden automatisch für alle zuständigen Officer
+      mit Schlüssel verschlüsselt; Altfälle müssen im Fall selbst freigegeben werden.
+    </div>
+
+    <div class="karte">
+      <h2>Eingetragene Bearbeiter</h2>
+      <div class="tabellen-rahmen">
+        <table class="daten" id="bearbeiterTabelle"></table>
+      </div>
+    </div>
+
+    <div class="karte">
+      <h2>Bearbeiter aufnehmen</h2>
+      <div class="feld"><label for="nbMail">E-Mail (Konto im Tenant)</label>
+        <input type="text" id="nbMail" autocomplete="off"></div>
+      <div class="feld"><label for="nbName">Anzeigename</label>
+        <input type="text" id="nbName" autocomplete="off"></div>
+      <div class="feld"><label for="nbRolle">Rolle</label>
+        <select id="nbRolle">
+          <option>Compliance Officer</option>
+          <option>Chief Compliance Officer</option>
+        </select></div>
+      <div class="feld"><label for="nbGes">Zuständig für (Gesellschaften)</label>
+        <div id="nbGesellschaften"></div>
+        <p class="mini">Der Chief Compliance Officer erhält immer „*" – er muss jeden
+           Fall öffnen können, auch einen, der sich gegen einen lokalen Officer richtet.</p>
+      </div>
+      <p class="fehler-text" id="nbFehler" hidden></p>
+      <button type="button" class="knopf knopf-haupt" id="btnBearbeiterAnlegen">
+        Aufnehmen</button>
+    </div>
+  </section>
+
+</main>
+
+<div id="toast" hidden></div>
+
+<script src="js/config.js"></script>
+<script src="js/krypto.js"></script>
+<script src="js/graph.js"></script>
+<script src="js/schluessel.js"></script>
+<script src="js/export.js"></script>
+<script src="js/bearbeitung.js"></script>
+</body>
+</html>

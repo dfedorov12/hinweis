@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mein Postfach – DIHAG Hinweisgebersystem</title>
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="kopf">
+    <a class="marke" href="index.html">
+      <img src="assets/dihag-logo.png" alt="DIHAG Foundry Group">
+      <span class="marke-text">
+        <strong data-t="marke.name">Hinweisgebersystem</strong>
+        <span data-t="marke.zusatz">DIHAG Foundry Group</span>
+      </span>
+    </a>
+    <nav class="kopf-nav">
+      <a href="index.html" data-t="nav.melden">Hinweis geben</a>
+      <a href="postfach.html" class="aktiv" data-t="nav.postfach">Mein Postfach</a>
+      <a href="datenschutz.html" data-t="nav.datenschutz">Datenschutz</a>
+      <span class="sprachwahl">
+        <button type="button" data-sprache="de">DE</button>
+        <button type="button" data-sprache="en">EN</button>
+      </span>
+    </nav>
+  </div>
+</header>
+
+<main class="schmal">
+
+  <h1 data-t="postfach.titel">Anonymes Postfach</h1>
+  <p class="untertitel" data-t="postfach.untertitel"></p>
+
+  <!-- ══════════════ Anmeldung mit Fallnummer + Code ══════════════ -->
+  <div id="anmeldung">
+    <div class="karte">
+      <form id="oeffnen" novalidate>
+        <div class="feld">
+          <label for="fall">
+            <span data-t="postfach.fall">Fallnummer</span> <span class="pflicht">*</span>
+          </label>
+          <input type="text" id="fall" autocomplete="off" spellcheck="false"
+                 placeholder="2026-4K7M-9QX2" required
+                 style="font-family:Consolas,ui-monospace,monospace;letter-spacing:.05em">
+        </div>
+        <div class="feld">
+          <label for="code">
+            <span data-t="postfach.code">Zugangscode</span> <span class="pflicht">*</span>
+          </label>
+          <input type="text" id="code" autocomplete="off" spellcheck="false"
+                 placeholder="4K7M-9QX2-BVTH-3NRD" required
+                 style="font-family:Consolas,ui-monospace,monospace;letter-spacing:.05em">
+          <p class="hilfe" data-t="postfach.hinweis.code"></p>
+        </div>
+        <p class="fehler-text" id="anmeldefehler" hidden></p>
+        <button type="submit" class="knopf knopf-haupt" id="btnOeffnen"
+                data-t="postfach.oeffnen">Postfach öffnen</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════ Fall ══════════════ -->
+  <div id="fallbereich" hidden>
+
+    <div class="karte">
+      <div class="fall-kopf">
+        <h3 id="fallNr"></h3>
+        <span class="merkmal" id="fallStatus"></span>
+        <button type="button" class="knopf knopf-still knopf-klein"
+                id="btnSchliessen" style="margin-left:auto"
+                data-t="postfach.abmelden">Postfach schließen</button>
+      </div>
+      <dl class="fall-zeile" style="display:block;margin-top:12px">
+        <div style="display:flex;gap:8px">
+          <dt data-t="postfach.eingegangen">Eingegangen am</dt>
+          <dd id="fallEingang"></dd>
+        </div>
+        <div style="display:flex;gap:8px" id="zeileRueckmeldung">
+          <dt data-t="postfach.rueckmeldung">Rückmeldung zugesagt bis</dt>
+          <dd id="fallFrist"></dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="karte">
+      <h2 data-t="postfach.neue">Nachrichten</h2>
+      <div class="verlauf" id="verlauf"></div>
+
+      <div id="antwortbereich">
+        <div class="feld" style="margin-top:20px;margin-bottom:10px">
+          <label for="antwort" data-t="postfach.antwort">Ihre Antwort an die Meldestelle</label>
+          <textarea id="antwort" rows="5" maxlength="10000"
+                    data-t-platzhalter="postfach.antwort.platzhalter"></textarea>
+        </div>
+        <p class="fehler-text" id="sendefehler" hidden></p>
+        <button type="button" class="knopf knopf-haupt" id="btnSenden"
+                data-t="postfach.senden">Verschlüsselt senden</button>
+      </div>
+
+      <div id="antwortzu" class="leiste leiste-gelb" hidden data-t="postfach.zu"></div>
+    </div>
+
+    <div class="karte">
+      <h2 data-t="postfach.meldung.text">Ihre Meldung</h2>
+      <dl class="falldaten" id="meldungsinhalt"></dl>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="fuss">
+    <a href="datenschutz.html" data-t="fuss.datenschutz">Datenschutz</a>
+    <a id="externerLink" href="#" rel="noreferrer noopener" target="_blank"
+       data-t="fuss.extern">Externe Meldestelle</a>
+    <span class="rechts" data-t="fuss.betrieb">Betrieben von der DIHAG Foundry Group</span>
+  </div>
+</footer>
+
+<div id="toast" hidden></div>
+
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/krypto.js"></script>
+<script src="js/api.js"></script>
+<script src="js/postfach.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+name: Hinweis Fristenwaechter
+
+# Ueberwacht taeglich die Fristen des Hinweisgeberschutzgesetzes und loescht
+# abgelaufene Faelle. Kann auch von Hand gestartet werden (Run workflow).
+#
+# Der Lauf kann nichts lesen: Er besitzt keinen privaten Schluessel und
+# rechnet nur mit Datumsspalten. Siehe cron/hinweis_cron.py.
+
+on:
+  schedule:
+    # 05:15 UTC, also gegen 06:15/07:15 Uhr deutscher Zeit. Die krumme Minute
+    # ist Absicht - zur vollen Stunde starten sehr viele Actions gleichzeitig,
+    # und GitHub verschiebt dann gern um bis zu einer Stunde.
+    - cron: "15 5 * * *"
+  workflow_dispatch:
+    inputs:
+      trocken:
+        description: "Trockenlauf (nichts schreiben, nichts senden)"
+        type: boolean
+        default: false
+
+jobs:
+  fristen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fristenwaechter ausfuehren
+        env:
+          HINWEIS_TENANT_ID:     ${{ secrets.HINWEIS_TENANT_ID }}
+          HINWEIS_CLIENT_ID:     ${{ secrets.HINWEIS_CLIENT_ID }}
+          HINWEIS_CLIENT_SECRET: ${{ secrets.HINWEIS_CLIENT_SECRET }}
+          HINWEIS_SITE_HOST:     dihag.sharepoint.com
+          HINWEIS_SITE_PATH:     /sites/Meldestelle
+          HINWEIS_SENDER:        administrator@dihag.com
+          HINWEIS_APP_URL:       https://hinweis.dihag.de/
+          HINWEIS_TROCKEN:       ${{ inputs.trocken && '1' || '' }}
+        run: python cron/hinweis_cron.py

@@ -1,0 +1,329 @@
+/* DIHAG Hinweisgebersystem
+   Corporate Design: Azurblau #17509E · Navy #1A2644 · Anthrazit #424241
+                     Lichtblau #99B7CD · Orange #F08300 · Schrift Exo      */
+
+:root {
+  --azur: #17509E;
+  --navy: #1A2644;
+  --anthrazit: #424241;
+  --lichtblau: #99B7CD;
+  --orange: #F08300;
+
+  --bg: #eef2f7;
+  --karte: #ffffff;
+  --text: var(--anthrazit);
+  --leise: #67788a;
+  --rand: #ccd9e6;
+  --rand-hell: #e3eaf2;
+
+  --gruen: #1e7e34;   --gruen-bg: #e8f5ec;   --gruen-rand: #bfe3c8;
+  --gelb:  #8a5000;   --gelb-bg:  #fdf3e3;   --gelb-rand:  #f2cf9e;
+  --rot:   #b02a37;   --rot-bg:   #fdecea;   --rot-rand:   #f2c2c0;
+  --blau-bg: #e9f0f9; --blau-rand: #c3d6ee;
+
+  --radius: 10px;
+  --schatten: 0 1px 3px rgba(26, 38, 68, .08);
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: "Exo", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  background: var(--bg);
+  color: var(--text);
+}
+
+a { color: var(--azur); }
+a:hover { color: var(--navy); }
+
+/* ── Kopf ─────────────────────────────────────────────────────────── */
+
+header { background: #fff; border-bottom: 3px solid var(--azur); }
+
+.kopf {
+  max-width: 1060px; margin: 0 auto; padding: 12px 20px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.marke { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+.marke img { height: 38px; width: auto; display: block; }
+.marke-text strong { display: block; font-size: 17px; color: var(--navy); line-height: 1.15; }
+.marke-text span { font-size: 12px; color: var(--leise); letter-spacing: .04em; text-transform: uppercase; }
+
+.kopf-nav { margin-left: auto; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.kopf-nav a {
+  padding: 7px 13px; border-radius: 6px; text-decoration: none;
+  font-size: 14px; font-weight: 600; color: var(--navy);
+}
+.kopf-nav a:hover { background: var(--blau-bg); }
+.kopf-nav a.aktiv { background: var(--azur); color: #fff; }
+
+.sprachwahl {
+  display: flex; gap: 2px; border: 1px solid var(--rand); border-radius: 6px;
+  overflow: hidden; margin-left: 6px;
+}
+.sprachwahl button {
+  border: none; background: #fff; color: var(--leise);
+  padding: 6px 10px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.sprachwahl button.aktiv { background: var(--navy); color: #fff; }
+
+/* ── Grundgerüst ──────────────────────────────────────────────────── */
+
+main { max-width: 1060px; margin: 0 auto; padding: 24px 20px 60px; }
+main.schmal { max-width: 780px; }
+
+h1 { font-size: 30px; color: var(--azur); margin: 8px 0 6px; line-height: 1.2; }
+h2 { font-size: 20px; color: var(--navy); margin: 0 0 12px; }
+h3 { font-size: 16px; color: var(--navy); margin: 22px 0 6px; }
+
+.untertitel { color: var(--leise); margin: 0 0 22px; font-size: 16px; }
+
+.karte {
+  background: var(--karte); border: 1px solid var(--rand-hell);
+  border-radius: var(--radius); padding: 24px; margin-bottom: 18px;
+  box-shadow: var(--schatten);
+}
+.karte.eng { padding: 18px; }
+
+.leise { color: var(--leise); font-size: 14px; }
+.mini  { font-size: 13px; color: var(--leise); }
+
+/* ── Hinweisleisten ───────────────────────────────────────────────── */
+
+.leiste {
+  border-radius: 8px; padding: 13px 16px; margin: 0 0 18px;
+  font-size: 14.5px; border: 1px solid;
+}
+.leiste :first-child { margin-top: 0; }
+.leiste :last-child { margin-bottom: 0; }
+.leiste-blau  { background: var(--blau-bg);  border-color: var(--blau-rand);  color: var(--navy); }
+.leiste-gruen { background: var(--gruen-bg); border-color: var(--gruen-rand); color: var(--gruen); }
+.leiste-gelb  { background: var(--gelb-bg);  border-color: var(--gelb-rand);  color: var(--gelb); }
+.leiste-rot   { background: var(--rot-bg);   border-color: var(--rot-rand);   color: var(--rot); }
+
+/* ── Formular ─────────────────────────────────────────────────────── */
+
+fieldset { border: none; margin: 0; padding: 0; }
+legend { padding: 0; }
+
+.feld { margin-bottom: 20px; }
+.feld > label, .feld-titel {
+  display: block; font-weight: 600; font-size: 14.5px;
+  color: var(--navy); margin-bottom: 5px;
+}
+.feld .hilfe { font-size: 13.5px; color: var(--leise); margin: 0 0 7px; }
+
+input[type="text"], input[type="search"], select, textarea {
+  width: 100%; font: inherit; padding: 10px 12px;
+  border: 1px solid var(--rand); border-radius: 7px;
+  background: #fff; color: var(--text);
+}
+textarea { resize: vertical; min-height: 96px; line-height: 1.5; }
+input:focus, select:focus, textarea:focus, button:focus-visible, a:focus-visible {
+  outline: 3px solid rgba(23, 80, 158, .35); outline-offset: 1px; border-color: var(--azur);
+}
+input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"] {
+  border-color: var(--rot); background: #fffafa;
+}
+
+.pflicht { color: var(--orange); font-weight: 700; }
+
+.wahl { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 4px; }
+.wahl label, .haken {
+  display: flex; align-items: flex-start; gap: 9px;
+  font-weight: 400; font-size: 15px; cursor: pointer; margin-bottom: 10px;
+}
+.wahl input, .haken input { width: 18px; height: 18px; margin: 2px 0 0; flex: none; accent-color: var(--azur); }
+.haken .nebentext { display: block; font-size: 13.5px; color: var(--leise); }
+
+.fehler-text { color: var(--rot); font-size: 13.5px; margin-top: 5px; font-weight: 600; }
+
+/* ── Knöpfe ───────────────────────────────────────────────────────── */
+
+.knopf {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: inherit; font-weight: 600; font-size: 15px;
+  padding: 11px 24px; border-radius: 7px; border: 1px solid transparent;
+  cursor: pointer; text-decoration: none;
+}
+.knopf-haupt   { background: var(--orange); color: #fff; }
+.knopf-haupt:hover:not(:disabled) { background: #d97600; }
+.knopf-zweit   { background: #fff; color: var(--azur); border-color: var(--azur); }
+.knopf-zweit:hover:not(:disabled) { background: var(--blau-bg); }
+.knopf-still   { background: #fff; color: var(--leise); border-color: var(--rand); }
+.knopf-still:hover:not(:disabled) { background: var(--bg); color: var(--navy); }
+.knopf-gefahr  { background: #fff; color: var(--rot); border-color: var(--rot); }
+.knopf-gefahr:hover:not(:disabled) { background: var(--rot-bg); }
+.knopf:disabled { opacity: .5; cursor: not-allowed; }
+.knopf-klein { padding: 7px 14px; font-size: 13.5px; }
+.knopf-reihe { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* ── Freischalt-Schieber (statt CAPTCHA) ──────────────────────────── */
+
+.schieber-feld { background: var(--bg); border: 1px solid var(--rand); border-radius: 8px; padding: 16px; }
+.schieber { width: 100%; margin: 10px 0 0; accent-color: var(--orange); height: 28px; }
+.schieber-stand { font-size: 13.5px; font-weight: 600; color: var(--leise); }
+.schieber-stand.frei { color: var(--gruen); }
+
+/* ── Anhänge ──────────────────────────────────────────────────────── */
+
+.anhang-liste { list-style: none; margin: 10px 0 0; padding: 0; }
+.anhang-liste li {
+  display: flex; align-items: center; gap: 10px;
+  border: 1px solid var(--rand-hell); border-radius: 7px;
+  padding: 8px 12px; margin-bottom: 7px; font-size: 14px; background: #fff;
+}
+.anhang-liste .name { flex: 1; overflow-wrap: anywhere; }
+.anhang-liste .groesse { color: var(--leise); font-size: 13px; white-space: nowrap; }
+
+/* ── Zugangscode nach dem Absenden ────────────────────────────────── */
+
+.code-kasten {
+  background: var(--navy); color: #fff; border-radius: var(--radius);
+  padding: 24px; text-align: center; margin: 18px 0;
+}
+.code-kasten .beschriftung {
+  font-size: 13px; text-transform: uppercase; letter-spacing: .1em;
+  opacity: .8; margin-bottom: 8px;
+}
+.code-wert {
+  font-family: "Consolas", "SF Mono", ui-monospace, monospace;
+  font-size: clamp(20px, 5vw, 30px); font-weight: 700; letter-spacing: .08em;
+  overflow-wrap: anywhere;
+}
+.code-kasten .fall { font-size: 15px; opacity: .9; margin-top: 14px; }
+.code-kasten .fall b { font-family: "Consolas", ui-monospace, monospace; letter-spacing: .05em; }
+
+/* ── Nachrichten-Verlauf ──────────────────────────────────────────── */
+
+.verlauf { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+.nachricht { border-radius: 10px; padding: 13px 16px; max-width: 88%; font-size: 15px; }
+.nachricht .kopfzeile { font-size: 12.5px; font-weight: 600; opacity: .75; margin-bottom: 4px; }
+.nachricht p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.n-meldestelle { background: var(--blau-bg); border: 1px solid var(--blau-rand); align-self: flex-start; }
+.n-hinweisgeber { background: var(--gelb-bg); border: 1px solid var(--gelb-rand); align-self: flex-end; }
+.n-system {
+  background: var(--bg); border: 1px dashed var(--rand); align-self: center;
+  max-width: 100%; text-align: center; font-size: 13.5px; color: var(--leise);
+}
+
+/* ── Fallliste (Bearbeitung) ──────────────────────────────────────── */
+
+.spalten { display: grid; grid-template-columns: 1fr 290px; gap: 20px; align-items: start; }
+@media (max-width: 900px) { .spalten { grid-template-columns: 1fr; } }
+
+.fall-karte {
+  background: #fff; border: 1px solid var(--rand-hell); border-radius: var(--radius);
+  padding: 16px 20px; margin-bottom: 12px; box-shadow: var(--schatten);
+}
+.fall-kopf { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.fall-kopf h3 { margin: 0; font-size: 18px; font-family: "Consolas", ui-monospace, monospace; }
+.fall-zeile { display: flex; gap: 6px; font-size: 14px; margin-top: 3px; }
+.fall-zeile dt { color: var(--leise); min-width: 150px; }
+.fall-zeile dd { margin: 0; font-weight: 600; }
+
+.merkmal {
+  display: inline-block; padding: 3px 11px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 700; border: 1px solid;
+}
+.m-neu    { background: var(--gelb-bg);  color: var(--gelb);  border-color: var(--gelb-rand); }
+.m-offen  { background: var(--blau-bg);  color: var(--azur);  border-color: var(--blau-rand); }
+.m-zu     { background: var(--gruen-bg); color: var(--gruen); border-color: var(--gruen-rand); }
+.m-frist  { background: var(--rot-bg);   color: var(--rot);   border-color: var(--rot-rand); }
+.m-still  { background: var(--bg);       color: var(--leise); border-color: var(--rand); }
+
+.filter h3 { margin-top: 0; }
+.filter fieldset { margin-bottom: 16px; }
+.filter legend { font-weight: 700; font-size: 14px; color: var(--navy); margin-bottom: 6px; }
+.filter label { display: flex; gap: 8px; font-size: 14px; margin-bottom: 5px; align-items: flex-start; }
+.filter input[type="checkbox"] { margin-top: 3px; accent-color: var(--azur); }
+
+/* ── Reiter in der Detailansicht ──────────────────────────────────── */
+
+.reiter { display: flex; gap: 4px; border-bottom: 2px solid var(--rand-hell); margin-bottom: 20px; overflow-x: auto; }
+.reiter button {
+  border: none; background: none; font: inherit; font-weight: 600; font-size: 14.5px;
+  color: var(--leise); padding: 10px 16px; cursor: pointer; white-space: nowrap;
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+}
+.reiter button.aktiv { color: var(--azur); border-bottom-color: var(--orange); }
+.reiter button:hover { color: var(--navy); }
+.blatt { display: none; }
+.blatt.aktiv { display: block; }
+
+/* ── Tabellen ─────────────────────────────────────────────────────── */
+
+.tabellen-rahmen { overflow-x: auto; }
+table.daten { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.daten th, table.daten td {
+  text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--rand-hell);
+  vertical-align: top;
+}
+table.daten th { background: var(--bg); color: var(--navy); font-weight: 700; white-space: nowrap; }
+table.daten tr:last-child td { border-bottom: none; }
+
+dl.falldaten { margin: 0; }
+dl.falldaten dt { font-weight: 700; color: var(--navy); font-size: 14px; margin-top: 16px; }
+dl.falldaten dt:first-child { margin-top: 0; }
+dl.falldaten dd { margin: 3px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+dl.falldaten dd.leer { color: var(--leise); font-style: italic; white-space: normal; }
+
+/* ── Ladezustand, Meldungen ───────────────────────────────────────── */
+
+.laden { text-align: center; padding: 50px 20px; color: var(--leise); }
+.kreisel {
+  width: 34px; height: 34px; margin: 0 auto 14px;
+  border: 3px solid var(--rand); border-top-color: var(--azur);
+  border-radius: 50%; animation: dreh .9s linear infinite;
+}
+@keyframes dreh { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .kreisel { animation-duration: 3s; } }
+
+#toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+  background: var(--navy); color: #fff; padding: 12px 22px; border-radius: 8px;
+  font-size: 14.5px; box-shadow: 0 6px 20px rgba(0,0,0,.25); z-index: 60;
+  max-width: min(560px, 90vw);
+}
+#toast.fehler { background: var(--rot); }
+
+/* ── Fußbereich ───────────────────────────────────────────────────── */
+
+footer {
+  border-top: 1px solid var(--rand); background: #fff; margin-top: 40px;
+  font-size: 13.5px; color: var(--leise);
+}
+.fuss {
+  max-width: 1060px; margin: 0 auto; padding: 18px 20px;
+  display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+}
+.fuss a { color: var(--leise); }
+.fuss .rechts { margin-left: auto; }
+
+/* Sichtbar nur für Screenreader – und der Honigtopf, der für niemanden
+   sichtbar sein soll. `display:none` wäre falsch: Manche Automaten füllen
+   gerade das aus, was versteckt ist, aber überspringen, was gar nicht da
+   ist. Deshalb aus dem Sichtfeld schieben statt entfernen. */
+.nur-vorlesen {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.honigtopf { position: absolute; left: -9999px; top: 0; width: 1px; height: 1px; opacity: 0; }
+
+/* ── Druck (Zugangscode-Zettel, Fallakte als PDF) ─────────────────── */
+
+@media print {
+  body { background: #fff; font-size: 11pt; }
+  header .kopf-nav, .sprachwahl, footer, .nicht-drucken, .reiter { display: none !important; }
+  .karte { border: 1px solid #999; box-shadow: none; break-inside: avoid; page-break-inside: avoid; }
+  .code-kasten { background: #fff; color: #000; border: 2px solid #000; }
+  .blatt { display: block !important; }
+  .blatt + .blatt { page-break-before: always; }
+  h1 { color: #000; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; color: #555; }
+}

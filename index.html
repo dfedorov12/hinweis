@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hinweis geben – DIHAG Hinweisgebersystem</title>
+
+<!--
+  Kein Verweis auf fremde Server außer der Schriftart.
+  Kein Analysewerkzeug, kein Captcha-Anbieter, kein CDN für Skripte.
+  Jede eingebundene fremde Adresse würde dem betreffenden Anbieter
+  verraten, dass hier gerade jemand eine Meldung schreibt – und genau
+  das darf ein Hinweisgebersystem nicht preisgeben.
+
+  Der Referrer wird unterdrückt, damit auch beim Klick auf die externe
+  Meldestelle nicht mitgeht, woher der Besucher kam.
+-->
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Anonymes Hinweisgebersystem der DIHAG Foundry Group nach dem Hinweisgeberschutzgesetz.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="kopf">
+    <a class="marke" href="index.html">
+      <img src="assets/dihag-logo.png" alt="DIHAG Foundry Group">
+      <span class="marke-text">
+        <strong data-t="marke.name">Hinweisgebersystem</strong>
+        <span data-t="marke.zusatz">DIHAG Foundry Group</span>
+      </span>
+    </a>
+    <nav class="kopf-nav">
+      <a href="index.html" class="aktiv" data-t="nav.melden">Hinweis geben</a>
+      <a href="postfach.html" data-t="nav.postfach">Mein Postfach</a>
+      <a href="datenschutz.html" data-t="nav.datenschutz">Datenschutz</a>
+      <span class="sprachwahl">
+        <button type="button" data-sprache="de">DE</button>
+        <button type="button" data-sprache="en">EN</button>
+      </span>
+    </nav>
+  </div>
+</header>
+
+<main class="schmal">
+
+  <!-- Ladezustand, solange die öffentlichen Schlüssel geholt werden -->
+  <div id="laden" class="laden">
+    <div class="kreisel"></div>
+    <p data-t="laden.start">Sichere Verbindung wird vorbereitet …</p>
+  </div>
+
+  <!-- Startfehler: ohne Schlüssel wird bewusst gar kein Formular angeboten -->
+  <div id="startfehler" class="leiste leiste-rot" hidden></div>
+
+  <!-- ══════════════════ Formular ══════════════════ -->
+  <div id="formularbereich" hidden>
+
+    <h1 data-t="melden.titel">Hinweis oder Anfrage eingeben</h1>
+    <p class="untertitel" data-t="melden.untertitel">
+      Dieses Meldesystem ist vollständig anonym. Es gibt keine Anmeldung, keine
+      Namensabfrage und keine E-Mail-Abfrage.
+    </p>
+
+    <div class="leiste leiste-blau">
+      <h2 style="font-size:16px" data-t="anon.titel">So bleiben Sie anonym</h2>
+      <p data-t="anon.text"></p>
+      <p><strong data-t="anon.warnung"></strong></p>
+      <p data-t="anon.geraet"></p>
+    </div>
+
+    <div id="probelaufhinweis" class="leiste leiste-gelb" hidden>
+      <strong>Probelauf.</strong> In <code>js/config.js</code> ist noch kein Endpunkt
+      eingetragen. Das Formular arbeitet vollständig, gespeichert wird nichts.
+    </div>
+
+    <form id="meldung" novalidate>
+
+      <div class="karte">
+
+        <div class="feld">
+          <span class="feld-titel" id="lbl-art">
+            <span data-t="feld.art">Es handelt sich um</span> <span class="pflicht">*</span>
+          </span>
+          <div role="radiogroup" aria-labelledby="lbl-art">
+            <label class="haken">
+              <input type="radio" name="art" value="Hinweis" checked>
+              <span>
+                <span data-t="feld.art.hinweis">Hinweis</span>
+                <span class="nebentext" data-t="feld.art.hinweis.hilfe"></span>
+              </span>
+            </label>
+            <label class="haken">
+              <input type="radio" name="art" value="Anfrage">
+              <span>
+                <span data-t="feld.art.anfrage">Anfrage</span>
+                <span class="nebentext" data-t="feld.art.anfrage.hilfe"></span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="feld">
+          <label for="thema">
+            <span data-t="feld.thema">Thema</span> <span class="pflicht">*</span>
+          </label>
+          <p class="hilfe" data-t="feld.thema.hilfe"></p>
+          <select id="thema" required></select>
+          <p class="fehler-text" data-fehler="thema" hidden></p>
+        </div>
+
+        <div class="feld">
+          <label for="gesellschaft">
+            <span data-t="feld.gesellschaft">Betroffene Gesellschaft</span>
+            <span class="pflicht">*</span>
+          </label>
+          <p class="hilfe" data-t="feld.gesellschaft.hilfe"></p>
+          <select id="gesellschaft" required></select>
+          <p class="fehler-text" data-fehler="gesellschaft" hidden></p>
+        </div>
+
+        <label class="haken">
+          <input type="checkbox" id="rueckfragen" checked>
+          <span>
+            <strong data-t="feld.rueckfragen">Rückfragen zulassen</strong>
+            <span class="nebentext" data-t="feld.rueckfragen.hilfe"></span>
+          </span>
+        </label>
+
+        <label class="haken">
+          <input type="checkbox" id="treffen">
+          <span>
+            <strong data-t="feld.treffen">Persönliches Treffen gewünscht</strong>
+            <span class="nebentext" data-t="feld.treffen.hilfe"></span>
+          </span>
+        </label>
+      </div>
+
+      <div class="karte">
+        <h2 data-t="abschnitt.sachverhalt">Was ist geschehen?</h2>
+
+        <div class="feld">
+          <label for="was">
+            <span data-t="feld.was">Was? (Sachverhalt)</span> <span class="pflicht">*</span>
+          </label>
+          <p class="hilfe" data-t="feld.was.hilfe"></p>
+          <textarea id="was" rows="9" required maxlength="8000"></textarea>
+          <p class="fehler-text" data-fehler="was" hidden></p>
+        </div>
+
+        <div class="feld">
+          <label for="wer" data-t="feld.wer"></label>
+          <textarea id="wer" rows="4" maxlength="2000"></textarea>
+        </div>
+
+        <div class="feld">
+          <label for="wann" data-t="feld.wann"></label>
+          <textarea id="wann" rows="3" maxlength="1000"></textarea>
+        </div>
+
+        <div class="feld">
+          <label for="wo" data-t="feld.wo"></label>
+          <textarea id="wo" rows="3" maxlength="1000"></textarea>
+        </div>
+
+        <div class="feld">
+          <label for="wie" data-t="feld.wie"></label>
+          <textarea id="wie" rows="5" maxlength="4000"></textarea>
+        </div>
+
+        <div class="feld">
+          <label for="lieferant" data-t="feld.lieferant"></label>
+          <textarea id="lieferant" rows="3" maxlength="1000"></textarea>
+        </div>
+
+        <div class="feld">
+          <label for="belege" data-t="feld.belege"></label>
+          <textarea id="belege" rows="4" maxlength="2000"></textarea>
+        </div>
+      </div>
+
+      <div class="karte">
+        <div class="feld" style="margin-bottom:0">
+          <label for="dateien" data-t="feld.anhaenge">Dateien anhängen</label>
+          <p class="hilfe" id="anhang-hilfe"></p>
+          <input type="file" id="dateien" multiple>
+          <ul class="anhang-liste" id="anhangliste"></ul>
+          <p class="fehler-text" data-fehler="dateien" hidden></p>
+        </div>
+      </div>
+
+      <div class="karte">
+        <div class="schieber-feld">
+          <label for="schieber">
+            <span data-t="feld.freischalten">Formular freischalten</span>
+            <span class="pflicht">*</span>
+          </label>
+          <p class="hilfe" data-t="feld.freischalten.hilfe"></p>
+          <input type="range" id="schieber" class="schieber" min="0" max="100" value="0"
+                 aria-describedby="schieberstand">
+          <div class="schieber-stand" id="schieberstand" data-t="schieber.zu"
+               role="status">Noch nicht freigeschaltet</div>
+        </div>
+
+        <!-- Honigtopf: für Menschen unsichtbar, aber vorhanden. Automaten
+             füllen erfahrungsgemäß aus, was nach einem Feld aussieht. -->
+        <div class="honigtopf" aria-hidden="true">
+          <label for="webseite">Bitte nicht ausfüllen</label>
+          <input type="text" id="webseite" name="webseite" tabindex="-1" autocomplete="off">
+        </div>
+
+        <p class="fehler-text" id="sammelfehler" hidden></p>
+
+        <div class="knopf-reihe" style="margin-top:16px">
+          <button type="submit" class="knopf knopf-haupt" id="absenden"
+                  data-t="absenden">Meldung verschlüsselt absenden</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- ══════════════════ Bestätigung ══════════════════ -->
+  <div id="bestaetigung" hidden>
+    <h1 data-t="danke.titel">Ihre Meldung ist eingegangen</h1>
+
+    <div id="probelaufdanke" class="leiste leiste-gelb" hidden
+         data-t="danke.probelauf"></div>
+
+    <div class="leiste leiste-gruen" data-t="danke.eingang"></div>
+
+    <div class="code-kasten">
+      <div class="beschriftung" data-t="danke.code.beschriftung">Ihr Zugangscode</div>
+      <div class="code-wert" id="codeanzeige"></div>
+      <div class="fall">
+        <span data-t="danke.fall">Fallnummer</span>: <b id="fallanzeige"></b>
+      </div>
+    </div>
+
+    <div class="leiste leiste-rot">
+      <h2 style="font-size:16px" data-t="danke.warnung.titel"></h2>
+      <p data-t="danke.warnung.text"></p>
+    </div>
+
+    <div class="knopf-reihe nicht-drucken">
+      <button type="button" class="knopf knopf-haupt" id="btnDrucken"
+              data-t="danke.drucken">Zettel drucken</button>
+      <button type="button" class="knopf knopf-zweit" id="btnKopieren"
+              data-t="danke.kopieren">Code kopieren</button>
+      <button type="button" class="knopf knopf-zweit" id="btnDatei"
+              data-t="danke.datei">Als Datei speichern</button>
+      <a class="knopf knopf-still" href="postfach.html"
+         data-t="danke.zumpostfach">Postfach öffnen</a>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="fuss">
+    <a href="datenschutz.html" data-t="fuss.datenschutz">Datenschutz</a>
+    <a id="externerLink" href="#" rel="noreferrer noopener" target="_blank"
+       data-t="fuss.extern">Externe Meldestelle</a>
+    <span class="rechts" data-t="fuss.betrieb">Betrieben von der DIHAG Foundry Group</span>
+  </div>
+</footer>
+
+<div id="toast" hidden></div>
+
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/krypto.js"></script>
+<script src="js/api.js"></script>
+<script src="js/meldung.js"></script>
+</body>
+</html>
