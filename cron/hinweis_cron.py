@@ -36,9 +36,37 @@ import urllib.request
 import urllib.parse
 import urllib.error
 
-TENANT   = os.environ["HINWEIS_TENANT_ID"]
-CLIENT   = os.environ["HINWEIS_CLIENT_ID"]
-SECRET   = os.environ["HINWEIS_CLIENT_SECRET"]
+# GitHub setzt eine fehlende Secret-Variable als LEEREN String, nicht gar nicht.
+# os.environ["..."] schlaegt deshalb NICHT fehl - der Lauf lief bis zur
+# Anmeldung weiter und scheiterte dort mit einem nackten "HTTP Error 404",
+# weil aus dem leeren Mandanten die Adresse
+# https://login.microsoftonline.com//oauth2/v2.0/token wurde.
+# Bei einem Waechter fuer gesetzliche Fristen ist das die schlechteste Sorte
+# Fehlermeldung: Sie schickt die Suche zu Graph, obwohl die Einrichtung fehlt.
+_FEHLT = []
+
+
+def _pflicht(name):
+    wert = os.environ.get(name, "").strip()
+    if not wert:
+        _FEHLT.append(name)
+    return wert
+
+
+TENANT   = _pflicht("HINWEIS_TENANT_ID")
+CLIENT   = _pflicht("HINWEIS_CLIENT_ID")
+SECRET   = _pflicht("HINWEIS_CLIENT_SECRET")
+
+if _FEHLT:
+    print("Der Fristenwaechter ist nicht eingerichtet.\n", file=sys.stderr)
+    print("  Es fehlen: " + ", ".join(_FEHLT), file=sys.stderr)
+    print("  Anzulegen unter Settings -> Secrets and variables -> Actions;", file=sys.stderr)
+    print("  welche Werte hineingehoeren, steht in cron/README.md (Abschnitt 3).\n", file=sys.stderr)
+    print("  Solange sie fehlen, ueberwacht NIEMAND die Fristen aus", file=sys.stderr)
+    print("  Paragraph 17 HinSchG und die Loeschung nach Paragraph 11 Abs. 5.", file=sys.stderr)
+    print("  Dieser Lauf bleibt deshalb absichtlich rot: Ein gruener Lauf, der", file=sys.stderr)
+    print("  nichts tut, waere hier gefaehrlicher als ein sichtbarer Fehler.", file=sys.stderr)
+    sys.exit(1)
 HOST     = os.environ.get("HINWEIS_SITE_HOST", "dihag.sharepoint.com")
 SITEPATH = os.environ.get("HINWEIS_SITE_PATH", "/sites/Meldestelle")
 SENDER   = os.environ.get("HINWEIS_SENDER", "administrator@dihag.com")
@@ -73,8 +101,26 @@ def get_token():
         "grant_type": "client_credentials",
     }).encode()
     url = f"https://login.microsoftonline.com/{TENANT}/oauth2/v2.0/token"
-    with urllib.request.urlopen(urllib.request.Request(url, data=data)) as r:
-        return json.load(r)["access_token"]
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, data=data)) as r:
+            return json.load(r)["access_token"]
+    except urllib.error.HTTPError as e:
+        # Die Antwort von Entra nennt den Grund (AADSTS...) - ohne sie steht im
+        # Protokoll nur eine Zahl, und die Suche beginnt an der falschen Stelle.
+        grund = ""
+        try:
+            grund = json.loads(e.read().decode()).get("error_description", "").split("\r\n")[0]
+        except Exception:
+            pass
+        raise SystemExit(
+            f"Anmeldung bei Microsoft fehlgeschlagen (HTTP {e.code}).\n"
+            f"  Mandant:   {TENANT}\n"
+            f"  Anwendung: {CLIENT}\n"
+            + (f"  Grund:     {grund}\n" if grund else "")
+            + "  Zu pruefen: Stimmen HINWEIS_TENANT_ID und HINWEIS_CLIENT_ID? Ist das\n"
+              "  Client-Secret abgelaufen? (Entra -> App-Registrierung -> Zertifikate\n"
+              "  & Geheimnisse; danach das Secret im Repo erneuern.)"
+        )
 
 
 TOKEN = get_token()
